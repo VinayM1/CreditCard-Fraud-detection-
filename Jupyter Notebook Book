@@ -1,0 +1,62 @@
+# Credit Card Fraud Detection - Jupyter Notebook Version
+
+# =====================
+# 🔹 STEP 1: Import Libraries
+# =====================
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, roc_auc_score
+from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import SMOTE
+import joblib
+
+# =====================
+# 🔹 STEP 2: Load Dataset
+# =====================
+df = pd.read_csv('creditcard.csv')
+df.head()
+
+# =====================
+# 🔹 STEP 3: Preprocessing
+# =====================
+X = df.drop('Class', axis=1)
+y = df['Class']
+
+scaler = StandardScaler()
+X[['Time', 'Amount']] = scaler.fit_transform(X[['Time', 'Amount']])
+
+# =====================
+# 🔹 STEP 4: Train-Test Split
+# =====================
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, stratify=y, random_state=42)
+
+# =====================
+# 🔹 STEP 5: Handle Class Imbalance with SMOTE
+# =====================
+sm = SMOTE(random_state=42)
+X_train_res, y_train_res = sm.fit_resample(X_train, y_train)
+
+# =====================
+# 🔹 STEP 6: Train Model
+# =====================
+clf = RandomForestClassifier(random_state=42)
+clf.fit(X_train_res, y_train_res)
+
+# =====================
+# 🔹 STEP 7: Evaluation
+# =====================
+y_pred = clf.predict(X_test)
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred))
+print("ROC-AUC:", roc_auc_score(y_test, clf.predict_proba(X_test)[:, 1]))
+
+# =====================
+# 🔹 STEP 8: Save the Model
+# =====================
+joblib.dump(clf, 'fraud_model.pkl')
+print("\n✅ Model saved as fraud_model.pkl")
