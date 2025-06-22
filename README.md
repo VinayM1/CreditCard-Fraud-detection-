@@ -86,10 +86,5 @@ joblib
 
 ---
 
-## 🛡️ License
-
-This project is licensed under the MIT License.
-
----
 
 > Created with 💻 in Jupyter Notebook by Vinay
